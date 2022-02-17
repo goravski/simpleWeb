@@ -13,6 +13,7 @@ public class LogoutCommand implements InterfaceCommand{
     public String execute(HttpServletRequest request, HttpServletResponse response) {
         String page = ConstantJSP.LOGIN_PAGE;
         request.getSession().invalidate();
+        log.info("execute LogoutCommand, session invalidated, Login page directed");
         return page;
     }
 }

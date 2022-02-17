@@ -1,6 +1,8 @@
 package by.gsu.epamlab.webshop.command;
 
+import by.gsu.epamlab.webshop.dao.PersonDaoImpl;
 import by.gsu.epamlab.webshop.dao.Utils;
+import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.servlets.ConstantJSP;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,17 +21,27 @@ public class LoginCommand implements InterfaceCommand {
         String page = null;
         String login = request.getParameter(PARAM_NAME_LOGIN);
         String pass = request.getParameter(PARAM_NAME_PASSWORD);
-        if (Utils.checkLogin(login, pass)) {
-            if (login.equals("admin")) {
-                request.setAttribute("role", login);
-                page = ConstantJSP.ADMIN_PAGE;
+        PersonDaoImpl personDao = null;
+        try {
+            personDao = new PersonDaoImpl();
+            if (personDao.chekPassword(login, pass)) {
+                if (login.equals("admin")) {
+                    request.setAttribute("role", login);
+                    page = ConstantJSP.ADMIN_PAGE;
+                    log.info("page ADMIN executed");
+                } else {
+                    request.setAttribute("role", "user");
+                    page = ConstantJSP.USER_PAGE;
+                    log.info("page User executed");
+                }
             } else {
-                request.setAttribute("role", "user");
-                page = ConstantJSP.USER_PAGE;
+                request.setAttribute("errorLoginPassMessage", ConstantJSP.MESSAGE_LOGIN_ERROR);
+                page = ConstantJSP.ERROR_PAGE;
+                log.info("page Error executed");
             }
-        } else {
-            request.setAttribute("errorLoginPassMessage", ConstantJSP.MESSAGE_LOGIN_ERROR);
-            page = ConstantJSP.ERROR_PAGE;
+        } catch (DaoException e) {
+            log.error("Didn,t create PersonDaoImpl object", e.getCause());
+            e.printStackTrace();
         }
         return page;
     }

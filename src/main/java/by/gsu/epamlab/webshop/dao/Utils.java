@@ -1,8 +1,10 @@
 package by.gsu.epamlab.webshop.dao;
 
+import by.gsu.epamlab.webshop.command.CommandFactory;
 import by.gsu.epamlab.webshop.exceptions.ConstantException;
 import by.gsu.epamlab.webshop.exceptions.AuthorizationException;
 import by.gsu.epamlab.webshop.model.Person;
+import org.apache.log4j.Logger;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -17,6 +19,8 @@ import java.util.List;
 
 
 public class Utils {
+    private static final Logger log = Logger.getLogger(Utils.class);
+
     public static String getHas(String password) throws AuthorizationException {
         String hashPassword;
         SecureRandom random = new SecureRandom();
@@ -29,8 +33,10 @@ public class Utils {
             hashPassword = new String(hash, StandardCharsets.UTF_8);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+            log.error("Error of cryptographic algorithm", e.getCause());
             throw new AuthorizationException(ConstantException.GETHASH_METHOD_CRYPTOGRAPHIC_ALGORITHM_GETINSTANCE_IS_NOT_AVAILABLE.toString());
         } catch (InvalidKeySpecException e) {
+            log.error("Error cryptographic can't generate hash", e.getCause());
             e.printStackTrace();
             throw new AuthorizationException(ConstantException.GETHASH_METHOD_FACTORY_CAN_NOT_GENERATE_HASH.toString());
         }
@@ -46,7 +52,7 @@ public class Utils {
         person = new Person(idPerson, name, loginPerson, role, status);
     }
 
-    public static void resultSeyLoadToListPerson(ResultSet resultSet, List<Person> personList) throws SQLException {
+    public static void resultSetLoadToListPerson(ResultSet resultSet, List<Person> personList) throws SQLException {
         int idPerson = resultSet.getInt(1);
         String name = resultSet.getString(2);
         String login = resultSet.getString(3);
@@ -54,16 +60,5 @@ public class Utils {
         boolean status = resultSet.getBoolean(6);
         Person person = new Person(idPerson, name, login, role, status);
         personList.add(person);
-    }
-
-    public static boolean checkLogin(String loginfromRequest, String passFromRequest) {
-        boolean chek = false;
-        try {
-            chek = "FROM_DB_ADMIN_LOGIN".equals(loginfromRequest) && "FROM_DB_ADMIN_PASS".equals(getHas(passFromRequest));
-        } catch (AuthorizationException e) {
-            System.err.println(e.getMessage());
-            System.err.println(e.getCause());
-        }
-        return chek;
     }
 }

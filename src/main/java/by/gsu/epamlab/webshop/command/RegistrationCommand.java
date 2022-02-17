@@ -11,6 +11,7 @@ public class RegistrationCommand implements InterfaceCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
+        log.info("execute RegistrationCommand, Registration page directed");
         return ConstantJSP.REGISTRATION_PAGE;
     }
 }

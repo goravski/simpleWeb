@@ -2,6 +2,7 @@ package by.gsu.epamlab.webshop.connection;
 
 import by.gsu.epamlab.webshop.exceptions.ConnectionException;
 import by.gsu.epamlab.webshop.exceptions.ConstantException;
+import org.apache.log4j.Logger;
 
 
 import java.sql.Connection;
@@ -29,6 +30,8 @@ public class DataBaseConnectionsPool implements ConnectionPool {
         usedConnections = new ArrayList<>();
     }
 
+    private static final Logger log = Logger.getLogger(DataBaseConnectionsPool.class);
+
     private static Connection createConnection(String url, String user, String password) throws SQLException {
         return DriverManager.getConnection(url, user, password);
     }
@@ -53,6 +56,7 @@ public class DataBaseConnectionsPool implements ConnectionPool {
             try {
                 optionalConnection = Optional.of(connectionPool.take());
             } catch (InterruptedException e) {
+                log.error("Failed to get connection from Queue", e.getCause());
                 throw new ConnectionException(ConstantException.ERROR_CAN_NOT_TAKE_CONNECTION.toString(), e.getCause());
             }
         }
