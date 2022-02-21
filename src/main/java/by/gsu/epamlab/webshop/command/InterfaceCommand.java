@@ -2,13 +2,14 @@ package by.gsu.epamlab.webshop.command;
 
 
 import by.gsu.epamlab.webshop.exceptions.CommandException;
-import org.apache.log4j.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public interface InterfaceCommand {
-    Logger log = Logger.getLogger(LoginCommand.class);
-    String execute (HttpServletRequest request, HttpServletResponse response) throws CommandException;
+    Logger log = LogManager.getLogger();
+
+    String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException;
 }

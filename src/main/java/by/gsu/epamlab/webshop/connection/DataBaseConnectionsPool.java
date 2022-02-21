@@ -2,15 +2,19 @@ package by.gsu.epamlab.webshop.connection;
 
 import by.gsu.epamlab.webshop.exceptions.ConnectionException;
 import by.gsu.epamlab.webshop.exceptions.ConstantException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -18,11 +22,11 @@ public class DataBaseConnectionsPool implements ConnectionPool {
     private String url;
     private String user;
     private String password;
-    private BlockingQueue<Connection> connectionPool;
-    private List<Connection> usedConnections;
+    private static BlockingQueue<Connection> connectionPool;
+    private static List<Connection> usedConnections;
+    private static final Properties PROPERTIES = new Properties();
 
-
-    public DataBaseConnectionsPool(String url, String user, String password, BlockingQueue<Connection> connectionPool) {
+    private DataBaseConnectionsPool(String url, String user, String password, BlockingQueue<Connection> connectionPool) {
         this.url = url;
         this.user = user;
         this.password = password;
@@ -30,38 +34,62 @@ public class DataBaseConnectionsPool implements ConnectionPool {
         usedConnections = new ArrayList<>();
     }
 
-    private static final Logger log = Logger.getLogger(DataBaseConnectionsPool.class);
+    private static final Logger LOGGER = LogManager.getLogger();
 
-    private static Connection createConnection(String url, String user, String password) throws SQLException {
-        return DriverManager.getConnection(url, user, password);
-    }
-
-    public static DataBaseConnectionsPool create() throws SQLException, ClassNotFoundException {
-        Class.forName(ConnectionPropertiesConstant.DRIVER_PROPERTY);
-        BlockingQueue<Connection> pool = new ArrayBlockingQueue<>(ConnectionPropertiesConstant.INITIAL_POOL_SIZE);
-        for (int i = 0; i < ConnectionPropertiesConstant.INITIAL_POOL_SIZE; i++) {
-            pool.add(createConnection(ConnectionPropertiesConstant.URL_PROPERTY,
-                    ConnectionPropertiesConstant.USER_PROPERTY, ConnectionPropertiesConstant.PASSWORD_PROPERTY));
+    static {
+        try (InputStream inputStream = DataBaseConnectionsPool.class.getClassLoader().getResourceAsStream("db.properties")) {
+            PROPERTIES.load(inputStream);
+            Class.forName(PROPERTIES.getProperty("db.driverClassName"));
+            initConnectionPoll();
+        } catch (IOException e) {
+            LOGGER.error("Load properties failed", e.getCause());
+            throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            LOGGER.error("Class.forName not find com.mysql.cj.jdbc.Driver",e.getCause());
+        } catch (ConnectionException e) {
+            LOGGER.error("init connection poll error in static block", e.getCause());
+            e.printStackTrace();
         }
-        return new DataBaseConnectionsPool(ConnectionPropertiesConstant.URL_PROPERTY,
-                ConnectionPropertiesConstant.USER_PROPERTY, ConnectionPropertiesConstant.PASSWORD_PROPERTY, pool);
     }
 
-    @Override
-    public Optional<Connection> getConnection() throws ConnectionException {
+    private static ConnectionPool initConnectionPoll() throws ConnectionException {
+        int poolSize = Integer.parseInt(PROPERTIES.getProperty("db.pool.size"));
+        connectionPool = new ArrayBlockingQueue<>(poolSize);
+        for (int i = 0; i < poolSize; i++) {
+            try {
+                connectionPool.add(openConnection());
+            } catch (SQLException e) {
+                LOGGER.error("Connection with database error during int Connection Pool", e.getCause());
+                throw new ConnectionException(e.getMessage(), e.getCause());
+            }
+        }
+        return new DataBaseConnectionsPool(PROPERTIES.getProperty("db.url"),
+                PROPERTIES.getProperty("db.username"), PROPERTIES.getProperty("db.password"), connectionPool);
+    }
+
+    private static Connection openConnection() throws SQLException {
+        return DriverManager.getConnection(PROPERTIES.getProperty("db.url"),
+                PROPERTIES.getProperty("db.username"), PROPERTIES.getProperty("db.password"));
+    }
+
+    public static Optional<Connection> getConnection() throws ConnectionException {
+        int poolSize = Integer.parseInt(PROPERTIES.getProperty("db.pool.size"));
         Optional<Connection> optionalConnection = Optional.empty();
-        int connectionAttempts = 20;
-        int count = 0;
-        while (count < connectionAttempts || !optionalConnection.isPresent()) {
             try {
                 optionalConnection = Optional.of(connectionPool.take());
             } catch (InterruptedException e) {
-                log.error("Failed to get connection from Queue", e.getCause());
+                LOGGER.error("Failed to get connection from Queue", e.getCause());
                 throw new ConnectionException(ConstantException.ERROR_CAN_NOT_TAKE_CONNECTION.toString(), e.getCause());
             }
-        }
         usedConnections.add(optionalConnection.get());
         return optionalConnection;
+    }
+
+
+    public boolean releaseConnection(Connection connection) {
+        connectionPool.add(connection);
+        return usedConnections.remove(connection);
     }
 
     public int getSize() {
@@ -74,11 +102,5 @@ public class DataBaseConnectionsPool implements ConnectionPool {
             connection.close();
         }
         connectionPool.clear();
-    }
-
-    @Override
-    public boolean releaseConnection(Connection connection) {
-        connectionPool.add(connection);
-        return usedConnections.remove(connection);
     }
 }

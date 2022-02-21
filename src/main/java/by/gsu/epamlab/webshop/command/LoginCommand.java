@@ -1,12 +1,10 @@
 package by.gsu.epamlab.webshop.command;
 
 import by.gsu.epamlab.webshop.dao.PersonDaoImpl;
-import by.gsu.epamlab.webshop.dao.Utils;
+import by.gsu.epamlab.webshop.exceptions.CommandException;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.servlets.ConstantJSP;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 
 
 public class LoginCommand implements InterfaceCommand {
@@ -17,31 +15,29 @@ public class LoginCommand implements InterfaceCommand {
     private static final String PARAM_NAME_PASSWORD = "password";
 
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) {
-        String page = null;
+    public String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
+        String page;
         String login = request.getParameter(PARAM_NAME_LOGIN);
         String pass = request.getParameter(PARAM_NAME_PASSWORD);
-        PersonDaoImpl personDao = null;
         try {
-            personDao = new PersonDaoImpl();
-            if (personDao.chekPassword(login, pass)) {
+            if (PersonDaoImpl.chekPassword(login, pass)) {
                 if (login.equals("admin")) {
                     request.setAttribute("role", login);
                     page = ConstantJSP.ADMIN_PAGE;
-                    log.info("page ADMIN executed");
+                    log.info ("page ADMIN executed");
                 } else {
                     request.setAttribute("role", "user");
                     page = ConstantJSP.USER_PAGE;
-                    log.info("page User executed");
+                    log.info ("page User executed");
                 }
             } else {
                 request.setAttribute("errorLoginPassMessage", ConstantJSP.MESSAGE_LOGIN_ERROR);
                 page = ConstantJSP.ERROR_PAGE;
-                log.info("page Error executed");
+                log.info ("page Error executed");
             }
-        } catch (DaoException e) {
+        } catch (DaoException e){
             log.error("Didn,t create PersonDaoImpl object", e.getCause());
-            e.printStackTrace();
+            throw  new CommandException(e.getMessage(), e.getCause());
         }
         return page;
     }

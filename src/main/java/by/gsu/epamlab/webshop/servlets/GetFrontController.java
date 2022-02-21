@@ -1,13 +1,12 @@
 package by.gsu.epamlab.webshop.servlets;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import java.io.IOException;
 
-@WebServlet( urlPatterns = {"/admin_menu", "/user_menu", "/error404"}) // записать все command {"/cmd1", "/cmd2", "/cmd3"}
-public class GetFrontController extends AbstractFrontController {
+@WebServlet( urlPatterns = {"/admin_menu", "/user_menu", "/error404"})
+public class GetFrontController implements AbstractFrontController {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);

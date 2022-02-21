@@ -7,10 +7,12 @@
     <title>Welcom!</title>
 </head>
 <body>
-<h1><"Welcom to SHOP!">
-</h1>
+<h1>Welcom to SHOP!</h1>
 <br/>
-<a href="/login?command=LOGIN_PAGE">Sign in</a>
-<a href="/registration?command=REGISTRATION_PAGE">Sign in</a>
+
+<h3>Enter your login and password or register</h3>
+<br/>
+<a href="http://localhost:8080/login.jsp">Sign in</a> <br> <br>
+<a href="http://localhost:8080/registration.jsp">Registration</a>
 </body>
 </html>

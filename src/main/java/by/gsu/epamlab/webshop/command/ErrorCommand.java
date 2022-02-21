@@ -1,8 +1,7 @@
 package by.gsu.epamlab.webshop.command;
 
 import by.gsu.epamlab.webshop.servlets.ConstantJSP;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 
 public class ErrorCommand implements InterfaceCommand {
     public ErrorCommand() {
