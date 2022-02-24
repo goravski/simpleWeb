@@ -12,11 +12,11 @@ public interface DaoGeneralInterface<E> {
 
     public abstract Optional<E> getById(int id) throws DaoException;
 
-    public abstract Optional<E> getByLogin(String login) throws DaoException;
+    public abstract Optional<E> getByLoginAndPassword(String login, String password) throws DaoException;
 
     public abstract void update(E entity) throws DaoException;
 
     public abstract void delete(E entity) throws DaoException;
 
-    public abstract void add(E entity) throws DaoException;
+    public abstract boolean add(E entity) throws DaoException;
 }

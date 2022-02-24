@@ -1,4 +1,4 @@
-package by.gsu.epamlab.webshop.servlets;
+package by.gsu.epamlab.webshop.controllers;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

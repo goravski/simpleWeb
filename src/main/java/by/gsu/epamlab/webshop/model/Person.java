@@ -5,6 +5,7 @@ public class Person {
     private String name;
     private String login;
     private String role;
+    private String password;
     private boolean status;
 
     public Person() {
@@ -18,6 +19,19 @@ public class Person {
         this.role = role;
         this.status = status;
     }
+
+    public Person(String name, String login, String password) {
+        this.name = name;
+        this.login = login;
+        this.password = password;
+        role = "user";
+        status = true;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
 
     public int getId() {
         return id;

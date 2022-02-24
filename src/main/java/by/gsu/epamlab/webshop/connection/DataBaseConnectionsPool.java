@@ -18,13 +18,14 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class DataBaseConnectionsPool implements ConnectionPool {
+public class DataBaseConnectionsPool implements ConnectionPool, AutoCloseable{
     private String url;
     private String user;
     private String password;
     private static BlockingQueue<Connection> connectionPool;
     private static List<Connection> usedConnections;
     private static final Properties PROPERTIES = new Properties();
+    private Connection connection;
 
     private DataBaseConnectionsPool(String url, String user, String password, BlockingQueue<Connection> connectionPool) {
         this.url = url;
@@ -75,7 +76,7 @@ public class DataBaseConnectionsPool implements ConnectionPool {
 
     public static Optional<Connection> getConnection() throws ConnectionException {
         int poolSize = Integer.parseInt(PROPERTIES.getProperty("db.pool.size"));
-        Optional<Connection> optionalConnection = Optional.empty();
+        Optional<Connection> optionalConnection;
             try {
                 optionalConnection = Optional.of(connectionPool.take());
             } catch (InterruptedException e) {
@@ -102,5 +103,11 @@ public class DataBaseConnectionsPool implements ConnectionPool {
             connection.close();
         }
         connectionPool.clear();
+    }
+
+    @Override
+    public void close() throws Exception {
+        usedConnections.remove(this.connection);
+        connectionPool.add(this.connection);
     }
 }

@@ -1,14 +1,12 @@
 package by.gsu.epamlab.webshop.dao;
 
-import by.gsu.epamlab.webshop.command.InterfaceCommand;
-import by.gsu.epamlab.webshop.command.RegistrationCommand;
-import by.gsu.epamlab.webshop.connection.ConnectionPool;
 import by.gsu.epamlab.webshop.connection.DataBaseConnectionsPool;
 import by.gsu.epamlab.webshop.exceptions.AuthorizationException;
 import by.gsu.epamlab.webshop.exceptions.ConnectionException;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
+import by.gsu.epamlab.webshop.exceptions.ServiceException;
 import by.gsu.epamlab.webshop.model.Person;
-import jakarta.servlet.http.HttpServletRequest;
+import by.gsu.epamlab.webshop.service.Services;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,16 +23,18 @@ import java.util.Optional;
 public class PersonDaoImpl implements DaoGeneralInterface<Person> {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private static ConnectionPool pool;
 
     private PersonDaoImpl() {
     }
 
     private final static PersonDaoImpl INSTANCE = new PersonDaoImpl();
 
-    public static PersonDaoImpl getInstance() {
+    public static PersonDaoImpl getDaoInstance() {
         return INSTANCE;
     }
+
+    Services services = new Services();
+
 
     @Override
     public List<Person> getAll() throws DaoException {
@@ -46,7 +46,7 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
                     PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM person ");
                     ResultSet resultSet = preparedStatement.executeQuery();
                     while (resultSet.next()) {
-                        Utils.resultSetLoadToListPerson(resultSet, personList);
+                        services.resultSetLoadToListPerson(resultSet, personList);
                         LOGGER.info("List of Person initialized");
                     }
                 } catch (SQLException e) {
@@ -71,9 +71,10 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
                 try (Connection connection = optionalConnection.get()) {
                     PreparedStatement preparedStatement = connection
                             .prepareStatement("SELECT id, name, login, role FROM person WHERE id=?");
+                    preparedStatement.setInt(1, id);
                     ResultSet resultSet = preparedStatement.executeQuery();
                     while (resultSet.next()) {
-                        Utils.resultSetLoadToPerson(resultSet, person);
+                        person = services.resultSetLoadToPerson(resultSet);
                     }
                     LOGGER.info("Get Person by Id");
                 } catch (SQLException e) {
@@ -85,33 +86,52 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
             LOGGER.error("Didn't get connection in getById()", e.getCause());
             throw new DaoException(e.getMessage(), e.getCause());
         }
-        return Optional.of(person);
+        return Optional.ofNullable(person);
     }
 
     @Override
-    public Optional<Person> getByLogin(String login) throws DaoException {
+    public Optional<Person> getByLoginAndPassword(String loginRequest, String passwordRequest) throws DaoException {
         Person person = null;
+        String personPassword;
+
         try {
             Optional<Connection> optionalConnection = DataBaseConnectionsPool.getConnection();
             if (optionalConnection.isPresent()) {
                 try (Connection connection = optionalConnection.get()) {
                     PreparedStatement preparedStatement = connection
-                            .prepareStatement("SELECT id, name, login, role FROM person WHERE login=?");
+                            .prepareStatement("SELECT * FROM person WHERE (login, password) =(?,?)");
+                    preparedStatement.setString(1, loginRequest);
+                    preparedStatement.setString(2, services.getHas(passwordRequest));
                     ResultSet resultSet = preparedStatement.executeQuery();
                     while (resultSet.next()) {
-                        Utils.resultSetLoadToPerson(resultSet, person);
+                        int idPerson = resultSet.getInt(1);
+                        String name = resultSet.getString(2);
+                        String personLogin = resultSet.getString(3);
+                        personPassword = resultSet.getString(4);
+                        String role = resultSet.getString(5);
+                        boolean status = resultSet.getBoolean(6);
+                        if (services.checkPassword(passwordRequest, personPassword)) {
+                            person = new Person(idPerson, name, personLogin, role, status);
+                        }
                     }
                     LOGGER.info("Get Person by Login");
                 } catch (SQLException e) {
                     LOGGER.error("Didn't get sql connection in getByLogin()", e.getCause());
+                    throw new DaoException(e.getMessage(), e.getCause());
+                } catch (ServiceException e) {
+                    LOGGER.error("Cant check password in Services", e.getCause());
                     throw new DaoException(e.getMessage(), e.getCause());
                 }
             }
         } catch (ConnectionException e) {
             LOGGER.error("Didn't get connection in getByLogin()", e.getCause());
             throw new DaoException(e.getMessage(), e.getCause());
+        } catch (AuthorizationException e) {
+            LOGGER.error("Incorrect password", e.getCause());
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
-        return Optional.of(person);
+        return Optional.ofNullable(person);
     }
 
     @Override
@@ -165,83 +185,44 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
         } catch (ConnectionException ex) {
             LOGGER.error("Didn't get connection in delete()", ex.getCause());
             ex.printStackTrace();
-
         }
     }
 
     @Override
-    public void add(Person entity) throws DaoException {
-        RegistrationCommand command = new RegistrationCommand();
+    public boolean add(Person entity) throws DaoException {
+        boolean isAdd = false;
         try {
             Optional<Connection> optionalConnection = DataBaseConnectionsPool.getConnection();
             try (Connection connection = optionalConnection.get()) {
-                String sql = "INSERT person (name, login, password, role, status) Values (?,?,?,?,?)";
-                PreparedStatement preparedStatement = connection
-                        .prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-                preparedStatement.setString(1, entity.getName());
-                preparedStatement.setString(2, entity.getLogin());
-                preparedStatement.setString(3, getPasswordFromRequest(command.getRequest()));
-                preparedStatement.setString(4, entity.getRole());
-                preparedStatement.setBoolean(5, entity.getStatus());
-                preparedStatement.executeUpdate();
-                LOGGER.info("Person Added in database");
+                String hashPassword = services.getHas(entity.getPassword());
+                String sqlGet = "SELECT * from person WHERE (login, password) = (?,?)";
+                String sqlAdd = "INSERT person (name, login, password, role, status) Values (?,?,?,?,?)";
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlGet);
+                preparedStatement.setString(1, entity.getLogin());
+                preparedStatement.setString(2, hashPassword);
+                ResultSet resultSetGet = preparedStatement.executeQuery();
+                if (!resultSetGet.next()){
+                    preparedStatement = connection.prepareStatement(sqlAdd);
+                    preparedStatement.setString(1, entity.getName());
+                    preparedStatement.setString(2, entity.getLogin());
+                    preparedStatement.setString(3, hashPassword);
+                    preparedStatement.setString(4, entity.getRole());
+                    preparedStatement.setBoolean(5, entity.getStatus());
+                    preparedStatement.executeUpdate();
+                    isAdd = true;
+                    LOGGER.info("Person Added in database");
+                }
             } catch (SQLException e) {
                 LOGGER.error("Didn't get connection in add() or SQL request processing error", e.getCause());
+                throw new DaoException(e.getMessage(), e.getCause());
+            } catch (AuthorizationException e) {
+                LOGGER.error("Hash password error", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
         } catch (ConnectionException ex) {
             LOGGER.error("Didn't get connection in add()", ex.getCause());
-            ex.printStackTrace();
+            throw new DaoException(ex.getMessage(), ex.getCause());
         }
-
+        return isAdd;
     }
-
-    public static String getPasswordFromRequest(HttpServletRequest request) {
-        String hashPassword = "";
-        String passFromRequest = request.getParameter("password");
-        try {
-            hashPassword = Utils.getHas(passFromRequest);
-        } catch (AuthorizationException e) {
-            e.printStackTrace();
-        }
-        return hashPassword;
-    }
-
-    public static boolean chekPassword(String loginFromRequest, String passFromRequest) throws DaoException {
-        boolean chek = false;
-        String personLogin = null;
-        String personPassword = null;
-        try {
-            Optional<Connection> optionalConnection = DataBaseConnectionsPool.getConnection();
-            if (optionalConnection.isPresent()) {
-                try (Connection connection = optionalConnection.get()) {
-                    PreparedStatement preparedStatement = connection
-                            .prepareStatement("SELECT login, password FROM person WHERE login=?");
-                    preparedStatement.setString(1, loginFromRequest);
-                    ResultSet resultSet = preparedStatement.executeQuery();
-                    while (resultSet.next()) {
-                        personLogin = resultSet.getString(1);
-                        personPassword = resultSet.getString(2);
-                    }
-                    LOGGER.info("Init Password and Login");
-                } catch (SQLException e) {
-                    LOGGER.error("Didn't get sql connection in chekPassword()", e.getCause());
-                    throw new DaoException(e.getMessage(), e.getCause());
-                }
-            }
-        } catch (ConnectionException e) {
-            LOGGER.error("Didn't get connection in getByLogin()", e.getCause());
-            throw new DaoException(e.getMessage(), e.getCause());
-        }
-        try {
-            chek = personPassword.equals(Utils.getHas(passFromRequest));
-        } catch (AuthorizationException ex) {
-            LOGGER.error("", ex.getCause());
-            System.err.println(ex.getMessage());
-            ex.printStackTrace();
-        }
-        return chek;
-    }
-
-
 }

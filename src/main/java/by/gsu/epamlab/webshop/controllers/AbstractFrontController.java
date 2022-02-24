@@ -1,4 +1,4 @@
-package by.gsu.epamlab.webshop.servlets;
+package by.gsu.epamlab.webshop.controllers;
 
 import by.gsu.epamlab.webshop.command.CommandFactory;
 import by.gsu.epamlab.webshop.command.InterfaceCommand;
