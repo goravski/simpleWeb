@@ -19,7 +19,7 @@ public class CommandFactory {
             LOGGER.info("Command from CommandFabric received");
         } else {
             interfaceCommand = CommandEnum.ERROR.createCommand();
-            LOGGER.info("Command from CommandFabric didn't received, ErrorComand seted");
+            LOGGER.info("Command from CommandFabric didn't received, ErrorCommand set");
         }
         return Optional.of(interfaceCommand);
     }

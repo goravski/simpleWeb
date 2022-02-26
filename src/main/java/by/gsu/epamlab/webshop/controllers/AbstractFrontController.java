@@ -24,18 +24,18 @@ public interface AbstractFrontController {
             command = (InterfaceCommand) optionalCommand.get();
             try {
                 pageName = command.execute(request, response);
-                request.getRequestDispatcher(pageName).forward(request, response);
+                if (pageName.equals(ConstantJSP.REGISTRATION_PAGE)) {
+                    response.sendRedirect(request.getContextPath() + pageName);
+                    log.info("processRequest sendRedirect to " + pageName);
+                } else {
+                    request.getRequestDispatcher(pageName).forward(request, response);
+                    log.info("processRequest forward to " + pageName);
+                }
             } catch (CommandException e) {
                 log.error("command.execute(req, resp) is failed", e.getCause());
                 throw new ServletException(e.getMessage(), e.getCause());
             }
-            if (pageName.equals(ConstantJSP.REGISTRATION_PAGE)) {
-                response.sendRedirect(request.getContextPath() + pageName);
-                log.info("processRequest sendRedirect to " + pageName);
-            } else {
-                request.getRequestDispatcher(pageName).forward(request, response);
-                log.info("processRequest forward to " + pageName);
-            }
+
         } else {
             processError(request, response, "command from factory isEmpty");
         }

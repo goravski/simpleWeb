@@ -6,7 +6,9 @@ public enum CommandEnum {
     ERROR(ErrorCommand::new),
     LOGOUT(LogoutCommand::new),
     LOGIN(LoginCommand::new),
-    REGISTRATION(RegistrationCommand ::new);
+    REGISTRATION(RegistrationCommand ::new),
+    GET_USER (GetUserCommand::new),
+    UPDATE_USER (UpdateUserCommand :: new);
     private final InterfaceCommand command;
 
    CommandEnum(Supplier<InterfaceCommand> command) {

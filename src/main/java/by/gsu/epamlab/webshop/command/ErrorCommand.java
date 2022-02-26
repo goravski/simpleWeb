@@ -7,7 +7,7 @@ public class ErrorCommand implements InterfaceCommand {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) {
-        log.info("executed ErrorCommand Error page directed");
+        LOGGER.info("executed ErrorCommand Error page directed");
         return ConstantJSP.ERROR_PAGE;
     }
 }

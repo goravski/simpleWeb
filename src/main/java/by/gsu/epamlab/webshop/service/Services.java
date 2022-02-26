@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 
 public class Services {
@@ -36,15 +37,22 @@ public class Services {
         return check;
     }
 
-    public boolean checkPassword(String passFromRequest, String passFromDataBase)  throws ServiceException {
+    public boolean checkPassword(Optional <Person>optionalPerson, String passwordRequest) throws ServiceException {
+        Person person = optionalPerson.get();
         boolean check = false;
-        try {
-            check = passFromDataBase.equals(getHas(passFromRequest));
+                try {
+            check = person.getPassword().equals(getHas(passwordRequest));
         } catch (AuthorizationException ex) {
             LOGGER.error("Incorrect password", ex.getCause());
             System.err.println(ex.getMessage());
-            ex.printStackTrace();
         }
+        LOGGER.info("There isn't this person in database");
+        return check;
+    }
+
+    public boolean checkLogin(String loginFromRequest, String loginFromDataBase) throws ServiceException {
+        boolean check = false;
+        check = loginFromDataBase.equals(loginFromRequest);
         LOGGER.info("There isn't this person in database");
         return check;
     }
@@ -83,19 +91,21 @@ public class Services {
     public Person resultSetLoadToPerson(ResultSet resultSet) throws SQLException {
         int idPerson = resultSet.getInt(1);
         String name = resultSet.getString(2);
-        String loginPerson = resultSet.getString(3);
+        String login = resultSet.getString(3);
+        String password = resultSet.getString(4);
         String role = resultSet.getString(5);
         boolean status = resultSet.getBoolean(6);
-        return new Person(idPerson, name, loginPerson, role, status);
+        return new Person(idPerson, name, login, password, role, status);
     }
 
     public void resultSetLoadToListPerson(ResultSet resultSet, List<Person> personList) throws SQLException {
         int idPerson = resultSet.getInt(1);
         String name = resultSet.getString(2);
         String login = resultSet.getString(3);
+        String password = resultSet.getString(4);
         String role = resultSet.getString(5);
         boolean status = resultSet.getBoolean(6);
-        Person person = new Person(idPerson, name, login, role, status);
+        Person person = new Person(idPerson, name, login, password, role, status);
         personList.add(person);
     }
 }

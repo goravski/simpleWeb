@@ -3,12 +3,9 @@ package by.gsu.epamlab.webshop.controllers;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
-
-
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/login", "/registration"})
+@WebServlet(urlPatterns = {"/login", "/registration", "/logout", "/update_user"})
 public class PostFrontController extends HttpServlet implements AbstractFrontController{
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
