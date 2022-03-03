@@ -12,7 +12,7 @@
         <table style="box-decoration-break: slice">
         <tr>
             <td>Name:</td>
-            <td><input type="text" name="firstName"></td>
+            <td><input type="text" name="firstName" ></td>
         </tr>
         <br>
         <tr>

@@ -13,13 +13,13 @@ public class CommandFactory {
     public static Optional<InterfaceCommand> getCommandFromFactory(HttpServletRequest request) {
         InterfaceCommand interfaceCommand;
         Optional<String> optionalCommand = Optional.of(request.getParameter("command"));
-        LOGGER.info("command from request received: " + optionalCommand.get());
+        LOGGER.trace("command from request received: " + optionalCommand.get());
         if (optionalCommand.isPresent()) {
             interfaceCommand = CommandEnum.valueOf(optionalCommand.get().toUpperCase(Locale.ROOT)).createCommand();
-            LOGGER.info("Command from CommandFabric received");
+            LOGGER.trace("Command from CommandFabric received");
         } else {
             interfaceCommand = CommandEnum.ERROR.createCommand();
-            LOGGER.info("Command from CommandFabric didn't received, ErrorCommand set");
+            LOGGER.trace("Command from CommandFabric didn't received, ErrorCommand set");
         }
         return Optional.of(interfaceCommand);
     }

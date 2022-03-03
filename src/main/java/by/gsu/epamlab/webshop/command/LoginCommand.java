@@ -7,12 +7,11 @@ import by.gsu.epamlab.webshop.controllers.ConstantJSP;
 import by.gsu.epamlab.webshop.exceptions.ServiceException;
 import by.gsu.epamlab.webshop.model.Person;
 import jakarta.servlet.http.*;
-
 import java.util.Optional;
 
 
 public class LoginCommand implements InterfaceCommand {
-    private PersonDaoImpl personDao = PersonDaoImpl.getDaoInstance();
+    PersonDaoImpl personDao = new PersonDaoImpl();
     private static final String PARAM_NAME_LOGIN = "login";
     private static final String PARAM_NAME_PASSWORD = "password";
 

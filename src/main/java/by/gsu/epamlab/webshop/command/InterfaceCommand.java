@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 
 public interface InterfaceCommand {
-    PersonDaoImpl personDao = PersonDaoImpl.getDaoInstance();
+
     static final Logger LOGGER = LogManager.getLogger();
     Services services = new Services();
 

@@ -6,12 +6,12 @@ public class Person {
     private String login;
     private String role;
     private String password;
-    private boolean status;
+    private String status;
 
     public Person() {
     }
 
-    public Person(int id, String name, String login, String role, boolean status) {
+    public Person(int id, String name, String login, String role, String status) {
         this.id = id;
         this.name = name;
         this.login = login;
@@ -19,7 +19,7 @@ public class Person {
         this.status = status;
     }
 
-    public Person(int id, String name, String login, String pass, String role, boolean status) {
+    public Person(int id, String name, String login, String pass, String role, String status) {
         this(id, name,login, role, status);
         this.password = pass;
 
@@ -30,7 +30,7 @@ public class Person {
         this.login = login;
         this.password = password;
         role = "user";
-        status = true;
+        status = "Open";
     }
 
     public String getPassword() {
@@ -54,7 +54,7 @@ public class Person {
         return role;
     }
 
-    public boolean getStatus() {
+    public String getStatus() {
         return status;
     }
 

@@ -24,18 +24,7 @@ import java.util.Optional;
 
 public class Services {
     private final Logger LOGGER = LogManager.getLogger();
-    private PersonDaoImpl personDao = PersonDaoImpl.getDaoInstance();
 
-    public boolean chekPassword(HttpServletRequest request) {
-        boolean check = false;
-        return check;
-    }
-
-    public boolean checkUser(HttpServletRequest request) {
-        boolean check = false;
-
-        return check;
-    }
 
     public boolean checkPassword(Optional <Person>optionalPerson, String passwordRequest) throws ServiceException {
         Person person = optionalPerson.get();
@@ -94,18 +83,12 @@ public class Services {
         String login = resultSet.getString(3);
         String password = resultSet.getString(4);
         String role = resultSet.getString(5);
-        boolean status = resultSet.getBoolean(6);
+        String status = resultSet.getString(6);
         return new Person(idPerson, name, login, password, role, status);
     }
 
     public void resultSetLoadToListPerson(ResultSet resultSet, List<Person> personList) throws SQLException {
-        int idPerson = resultSet.getInt(1);
-        String name = resultSet.getString(2);
-        String login = resultSet.getString(3);
-        String password = resultSet.getString(4);
-        String role = resultSet.getString(5);
-        boolean status = resultSet.getBoolean(6);
-        Person person = new Person(idPerson, name, login, password, role, status);
+        Person person = resultSetLoadToPerson(resultSet);
         personList.add(person);
     }
 }

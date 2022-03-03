@@ -26,10 +26,10 @@ public interface AbstractFrontController {
                 pageName = command.execute(request, response);
                 if (pageName.equals(ConstantJSP.REGISTRATION_PAGE)) {
                     response.sendRedirect(request.getContextPath() + pageName);
-                    log.info("processRequest sendRedirect to " + pageName);
+                    log.trace("processRequest sendRedirect to " + pageName);
                 } else {
                     request.getRequestDispatcher(pageName).forward(request, response);
-                    log.info("processRequest forward to " + pageName);
+                    log.trace("processRequest forward to " + pageName);
                 }
             } catch (CommandException e) {
                 log.error("command.execute(req, resp) is failed", e.getCause());

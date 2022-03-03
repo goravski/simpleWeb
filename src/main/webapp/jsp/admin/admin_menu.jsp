@@ -51,13 +51,13 @@
                 <td>Status:</td>
                 <c:set var="alter" scope="page" value="${requestScope.person.status}"/>
                 <c:choose>
-                    <c:when test="${alter == true}">
-                        <td><input type="radio" name="status" value="unblock"  checked> Unblock</td>
-                        <td><input type="radio" name="status" value="block"> Block</td>
+                    <c:when test="${alter.equals('Open')}">
+                        <td><input type="radio" name="status" value="Open"  checked> Open</td>
+                        <td><input type="radio" name="status" value="Close"> Block</td>
                     </c:when>
-                    <c:when test="${alter == false}">
-                        <td><input type="radio" name="status" value="unblock"> Unblock</td>
-                        <td><input type="radio" name="status"  value="block" checked> Block</td>
+                    <c:when test="${alter.equals('Close')}">
+                        <td><input type="radio" name="status" value="Open"> Unblock</td>
+                        <td><input type="radio" name="status"  value="Close" checked> Close</td>
                     </c:when>
                     <c:otherwise>
                         status not identified
