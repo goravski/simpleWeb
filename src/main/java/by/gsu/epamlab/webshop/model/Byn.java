@@ -1,29 +1,22 @@
 package by.gsu.epamlab.webshop.model;
 
-
-public final class Byn {
+public class Byn implements Comparable<Byn> {
     private int value;
 
-    public Byn() {
-    }
-
     public Byn(int value) {
-
         this.value = value;
-    }
-
-    public Byn(int rubs, int coins) {
-
-        this(rubs * 100 + coins);
-    }
-
-    public Byn(Byn byn) {
-
-        this(byn.value);
     }
 
     public int getValue() {
         return value;
+    }
+
+    public Byn(int rubs, int coins) {
+        this(rubs * 100 + coins);
+    }
+
+    public Byn(Byn byn) {
+        this(byn.value);
     }
 
     public Byn add(Byn byn) {
@@ -49,6 +42,11 @@ public final class Byn {
     @Override
     public String toString() {
         return String.format("%d.%d%d", value / 100, value % 100 / 10, value % 10);
+    }
+
+    @Override
+    public int compareTo(Byn o) {
+        return value - o.value;
     }
 
     @Override

@@ -10,7 +10,7 @@ import jakarta.servlet.http.*;
 
 
 
-public class RegistrationCommand implements InterfaceCommand {
+public class UserRegistrationCommand implements InterfaceCommand {
     PersonDaoImpl personDao = new PersonDaoImpl();
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {

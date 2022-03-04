@@ -4,11 +4,10 @@ import by.gsu.epamlab.webshop.exceptions.DaoException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 public interface DaoGeneralInterface<E> {
 
-    public abstract List<E> getAll() throws DaoException;
+    public abstract List<E> getAll() throws DaoException, NoSuchMethodException;
 
     public abstract Optional<E> getById(int id) throws DaoException;
 

@@ -3,7 +3,7 @@ package by.gsu.epamlab.webshop.command;
 import by.gsu.epamlab.webshop.controllers.ConstantJSP;
 import jakarta.servlet.http.*;
 
-public class LogoutCommand implements InterfaceCommand{
+public class UserLogoutCommand implements InterfaceCommand{
 
 
     @Override

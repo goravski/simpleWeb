@@ -122,6 +122,7 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
             preparedStatement.setString(4, entity.getStatus());
             preparedStatement.setInt(5, entity.getId());
             preparedStatement.executeUpdate();
+            preparedStatement.close();
             LOGGER.trace("Person updated in database");
             DataBaseConnectionsPool.releaseConnection(connection);
         } catch (SQLException e) {
@@ -136,7 +137,8 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
     @Override
     public void delete(Person person) throws DaoException {
         String sql = "DELETE FROM person where idPerson = ?";
-        try (Connection connection = DataBaseConnectionsPool.getConnection()) {
+        try {
+            Connection connection = DataBaseConnectionsPool.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             try {
                 preparedStatement.setObject(1, person.getId());
@@ -163,7 +165,8 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
     @Override
     public boolean add(Person entity) throws DaoException {
         boolean isAdd = false;
-        try (Connection connection = DataBaseConnectionsPool.getConnection()) {
+        try {
+            Connection connection = DataBaseConnectionsPool.getConnection();
             String hashPassword = services.getHas(entity.getPassword());
             String login = entity.getLogin();
             String sqlGet = "SELECT * from person WHERE login = ?";
@@ -179,8 +182,7 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
                 preparedStatement.setString(3, hashPassword);
                 preparedStatement.setString(4, entity.getRole());
                 preparedStatement.setString(5, entity.getStatus());
-                preparedStatement.executeUpdate();
-                isAdd = true;
+                isAdd = preparedStatement.executeUpdate() == 1 ? true : false;
                 LOGGER.trace("User Added in database");
             } else {
                 LOGGER.trace("User with login " + login + "already exists.");

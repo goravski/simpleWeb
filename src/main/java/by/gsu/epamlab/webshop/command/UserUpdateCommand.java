@@ -7,20 +7,22 @@ import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Person;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Optional;
 
-public class GetUserCommand implements InterfaceCommand {
+
+public class UserUpdateCommand implements InterfaceCommand {
     PersonDaoImpl personDao = new PersonDaoImpl();
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
-        String login =  request.getParameter("login");
+
+        String status = request.getParameter("status");
+        int id = Integer.parseInt(request.getParameter("id").trim());
+        String name = request.getParameter("name");
+        String login = request.getParameter("login");
+        String role = request.getParameter("role");
+        Person person = new Person(id, name, login, role, status);
         try {
-            Optional <Person> optionalPerson = personDao.getByLogin(login);
-            if (optionalPerson.isPresent()){
-                request.setAttribute("person", optionalPerson.get());
-            } else {
-                request.setAttribute("person", new Person());
-            }
+            personDao.update(person);
+
         } catch (DaoException e) {
             LOGGER.error("Can't get object from database", e.getCause());
             throw new CommandException(e.getMessage(), e.getCause());

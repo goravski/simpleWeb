@@ -4,11 +4,11 @@ import java.util.function.Supplier;
 
 public enum CommandEnum {
     ERROR(ErrorCommand::new),
-    LOGOUT(LogoutCommand::new),
+    LOGOUT(UserLogoutCommand::new),
     LOGIN(LoginCommand::new),
-    REGISTRATION(RegistrationCommand ::new),
-    GET_USER (GetUserCommand::new),
-    UPDATE_USER (UpdateUserCommand :: new);
+    REGISTRATION(UserRegistrationCommand::new),
+    GET_USER (UserGetCommand::new),
+    UPDATE_USER (UserUpdateCommand:: new);
     private final InterfaceCommand command;
 
    CommandEnum(Supplier<InterfaceCommand> command) {
