@@ -4,10 +4,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcom!</title>
+    <title>Welcome!</title>
 </head>
 <body>
-<h1>Welcom to SHOP!</h1>
+<h1>Welcome to SHOP!</h1>
 <br/>
 
 <h3>Enter your login and password or register</h3>

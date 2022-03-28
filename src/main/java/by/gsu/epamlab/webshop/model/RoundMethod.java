@@ -1,5 +1,7 @@
 package by.gsu.epamlab.webshop.model;
 
+import com.mysql.cj.exceptions.NumberOutOfRange;
+
 public enum RoundMethod {
     FLOOR {
         double roundFunction(double d) {
@@ -20,8 +22,14 @@ public enum RoundMethod {
     abstract double roundFunction(double d);
 
     public int round(double roundedValue, int d) {
-        int tenPow = pow10(d);
-        int result = (int) roundFunction(roundedValue / tenPow) * tenPow;
+        int result = 0;
+        if (roundedValue <= Integer.MAX_VALUE) {
+            int tenPow = pow10(d);
+            result = (int) roundFunction(roundedValue / tenPow) * tenPow;
+
+        } else {
+            throw new NumberOutOfRange("Summ is out of max integer range.");
+        }
         return result;
     }
 
@@ -35,9 +43,5 @@ public enum RoundMethod {
             d--;
         }
         return n;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(RoundMethod.ROUND.round(105.0, 2));
     }
 }

@@ -61,8 +61,8 @@ public class DataBaseConnectionsPool implements ConnectionPool {
         }
     }
 
-
-    public static Connection getConnection() throws ConnectionException {
+    @Override
+    public Connection getConnection() throws ConnectionException {
         try {
             Connection connection = connectionBlockingQueue.take();
             LOGGER.trace("Get connection from connection pool queue");

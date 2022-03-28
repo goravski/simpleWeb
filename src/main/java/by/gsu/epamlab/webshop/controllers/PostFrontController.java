@@ -5,8 +5,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/login", "/registration", "/logout", "/update_user"})
-public class PostFrontController extends HttpServlet implements AbstractFrontController{
+@WebServlet(urlPatterns = {"/login", "/registration", "/logout", "/update_user", "/update_product", "/add_product",
+        "/buy_product", "/storage", "/product", "/cart_buy" , "/order"})
+public class PostFrontController extends AbstractFrontController{
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

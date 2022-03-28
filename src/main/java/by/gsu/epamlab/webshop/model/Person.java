@@ -57,6 +57,14 @@ public class Person {
     public String getStatus() {
         return status;
     }
+    public boolean isValid() {
+        if (id == 0 || name.equals("") || login.equals("") || role.equals("")
+                || status.equals("") || password.equals("")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     @Override
     public String toString() {

@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <body>
+<h1>User manipulation</h1>
 <form method="get" action="<c:url value='/get_user'/>">
     <input type="hidden" name="command" value="get_User"/>
     <h2> Find user:</h2>
@@ -57,7 +58,7 @@
 
                 </tr>
                 <br>
-                <td><input class="button" type="submit" value="Accept"></td>
+                <td><input class="button" type="submit" value="Update User"></td>
             </table>
         </c:when>
         <c:otherwise>

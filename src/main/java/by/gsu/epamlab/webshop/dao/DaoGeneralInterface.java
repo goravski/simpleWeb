@@ -7,15 +7,15 @@ import java.util.Optional;
 
 public interface DaoGeneralInterface<E> {
 
-    public abstract List<E> getAll() throws DaoException, NoSuchMethodException;
+    List<E> getAll() throws DaoException, NoSuchMethodException;
 
-    public abstract Optional<E> getById(int id) throws DaoException;
+    Optional<E> getById(int id) throws DaoException;
 
-    public abstract Optional<E> getByLogin(String loginRequest) throws DaoException;
+    Optional<E> getByLogin(String loginRequest) throws DaoException, NoSuchMethodException;
 
-    public abstract void update(E entity) throws DaoException;
+    void update(E entity) throws DaoException, NoSuchMethodException;
 
-    public abstract void delete(E entity) throws DaoException;
+    void delete(E entity) throws DaoException, NoSuchMethodException;
 
-    public abstract boolean add(E entity) throws DaoException;
+    int add(E entity) throws DaoException, NoSuchMethodException;
 }

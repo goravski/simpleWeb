@@ -7,18 +7,20 @@ import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Person;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public class UserUpdateCommand implements InterfaceCommand {
-    PersonDaoImpl personDao = new PersonDaoImpl();
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
-
-        String status = request.getParameter("status");
-        int id = Integer.parseInt(request.getParameter("id").trim());
-        String name = request.getParameter("name");
-        String login = request.getParameter("login");
-        String role = request.getParameter("role");
+        PersonDaoImpl personDao = new PersonDaoImpl();
+        final Logger LOGGER = LogManager.getLogger();
+        String status = request.getParameter(CommandConstant.STATUS);
+        int id = Integer.parseInt(request.getParameter(CommandConstant.ID).trim());
+        String name = request.getParameter(CommandConstant.NAME);
+        String login = request.getParameter(CommandConstant.LOGIN);
+        String role = request.getParameter(CommandConstant.ROLE);
         Person person = new Person(id, name, login, role, status);
         try {
             personDao.update(person);
