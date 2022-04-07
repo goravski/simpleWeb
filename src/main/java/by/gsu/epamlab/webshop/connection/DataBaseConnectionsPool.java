@@ -56,7 +56,6 @@ public class DataBaseConnectionsPool implements ConnectionPool {
                 connectionBlockingQueue.offer(openConnection());
             } catch (SQLException e) {
                 LOGGER.error("Connection with database error during open connection", e.getCause());
-
             }
         }
     }
@@ -75,6 +74,11 @@ public class DataBaseConnectionsPool implements ConnectionPool {
         }
     }
 
+    @Override
+    public void returnConnection(Connection connection){
+        connectionBlockingQueue.add(connection);
+        usedConnections.remove(connection);
+    }
 
     public static void releaseConnection(Connection connection) {
         connectionBlockingQueue.add(connection);
