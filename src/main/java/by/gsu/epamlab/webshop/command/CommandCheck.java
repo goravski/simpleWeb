@@ -13,10 +13,10 @@ public class CommandCheck {
         Optional<String> optionalCommand = Optional.of(request.getParameter("command"));
         LOGGER.trace("command from request received: " + optionalCommand.get());
         if (optionalCommand.isPresent()) {
-            LOGGER.trace("Command from CommandFabric received");
+            LOGGER.trace("Command for CommandFabric from request received");
            return optionalCommand.get();
         } else {
-            LOGGER.trace("Command from CommandFabric didn't received, ErrorCommand set");
+            LOGGER.trace("Command for CommandFabric from request didn't received, ErrorCommand set");
             return CommandEnum.ERROR.name();
         }
     }

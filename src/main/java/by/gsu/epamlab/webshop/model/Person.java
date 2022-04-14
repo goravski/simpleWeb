@@ -1,5 +1,7 @@
 package by.gsu.epamlab.webshop.model;
 
+import java.util.Objects;
+
 public class Person {
     private int id;
     private String name;
@@ -75,4 +77,16 @@ public class Person {
                 "status = " + status ;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Person)) return false;
+        Person person = (Person) o;
+        return getId() == person.getId() && Objects.equals(getName(), person.getName()) && Objects.equals(getLogin(), person.getLogin()) && Objects.equals(getRole(), person.getRole()) && Objects.equals(getPassword(), person.getPassword()) && Objects.equals(getStatus(), person.getStatus());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName(), getLogin(), getRole(), getPassword(), getStatus());
+    }
 }

@@ -7,15 +7,31 @@ import java.util.Optional;
 
 public interface DaoGeneralInterface<E> {
 
-    List<E> getAll() throws DaoException, NoSuchMethodException;
+    default List<E> getAll() throws DaoException, NoSuchMethodException{
+        throw new NoSuchMethodException("Method not implemented");
+    }
 
-    Optional<E> getById(int id) throws DaoException;
+    default Optional<E> getById(int id) throws DaoException, NoSuchMethodException {
+        throw new NoSuchMethodException("Method not implemented");
+    }
 
-    Optional<E> getByLogin(String loginRequest) throws DaoException, NoSuchMethodException;
+    default Optional<E> getByLogin(String loginRequest) throws DaoException, NoSuchMethodException{
+        throw new NoSuchMethodException("Method not implemented");
+    }
 
-    void update(E entity) throws DaoException, NoSuchMethodException;
+    default void update(E entity) throws DaoException, NoSuchMethodException{
+        throw new NoSuchMethodException("Method not implemented");
+    }
 
-    void delete(E entity) throws DaoException, NoSuchMethodException;
+    default void delete(E entity) throws DaoException, NoSuchMethodException{
+        throw new NoSuchMethodException("Method not implemented");
+    }
 
-    int add(E entity) throws DaoException, NoSuchMethodException;
+    default int add(E entity) throws DaoException, NoSuchMethodException{
+        throw new NoSuchMethodException("Method not implemented");
+    }
+
+    default void add(List <E> list) throws DaoException, NoSuchMethodException{
+        throw new NoSuchMethodException("Method not implemented");
+    }
 }

@@ -10,7 +10,7 @@
 
 <h1>Hello ${sessionScope.person.name} Cart ${sessionScope.cart.id}!</h1>
 
-<form method="get" action="<c:url value='/get_product'/>">
+<form method="get" action="<c:url value='/get_product_page'/>">
     <table style="alignment-baseline: baseline">
         <input type="hidden" name="command" value="get_product_page"/>
 
@@ -25,7 +25,6 @@
 
 <form method="post" action="<c:url value="/cart_buy"/> ">
     <input type="hidden" name="command" value="add_cart">
-
     <input class="button" type="submit" value="View cart: ${sessionScope.cart.orderList.size()} products">
 </form>
 

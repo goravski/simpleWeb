@@ -10,13 +10,13 @@
 
 <table style="box-decoration-break: slice">
     <tr>
-        <td>User added:</td>
-        <td>${requestScope.person}</td>
+        <td>Name:</td>
+        <td>${requestScope.person.name}</td>
     </tr>
     <br>
     <tr>
-        <td>Name:</td>
-        <td>${requestScope.person.toString()}</td>
+        <td>Login:</td>
+        <td>${requestScope.person.login}</td>
     </tr>
 
 </table>

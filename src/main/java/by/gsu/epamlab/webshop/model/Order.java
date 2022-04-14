@@ -55,7 +55,7 @@ public class Order {
     }
 
     public boolean isValid() {
-        if (!product.isValid() || orderQuantity <= 0 || cartId == 0) {
+        if (!product.isValid() || orderQuantity <= 0 ) {
             return false;
         } else {
             return true;

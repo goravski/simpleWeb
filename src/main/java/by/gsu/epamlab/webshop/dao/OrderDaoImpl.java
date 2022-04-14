@@ -1,68 +1,53 @@
 package by.gsu.epamlab.webshop.dao;
 
-import by.gsu.epamlab.webshop.connection.DataBaseConnectionsPool;
-import by.gsu.epamlab.webshop.exceptions.ConnectionException;
+import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Order;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+
 
 public class OrderDaoImpl implements DaoGeneralInterface<Order> {
-    DataBaseConnectionsPool connectionsPool = DataBaseConnectionsPool.getConnectionsPool();
+    ConnectionManager connectionManager;
 
-    @Override
-    public List getAll() throws DaoException, NoSuchMethodException {
-        throw new NoSuchMethodException("Method not implemented");
-    }
-
-    @Override
-    public Optional getById(int id) throws DaoException {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional getByLogin(String loginRequest) throws DaoException, NoSuchMethodException {
-        throw new NoSuchMethodException("Method not implemented");
-    }
-
-    @Override
-    public void update(Order entity) throws DaoException, NoSuchMethodException {
-        throw new NoSuchMethodException("Method not implemented");
-    }
-
-    @Override
-    public void delete(Order entity) throws DaoException {
-
+    public OrderDaoImpl(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
     }
 
     @Override
     public int add(Order entity) throws DaoException {
         final Logger LOGGER = LogManager.getLogger();
-        int idOrder = 0;
-        Connection connection = null;
-        try {
-            connection = connectionsPool.getConnection();
+        int idOrder;
+        try (Connection connection = connectionManager.getConnection()) {
             idOrder = transferOrder(connection, entity);
-        } catch (ConnectionException ex) {
-            LOGGER.error("Didn't get connection in add()", ex.getCause());
+            return idOrder;
+        } catch (SQLException ex) {
+            LOGGER.error("Didn't get connection in OrderDao add(Order)", ex.getCause());
             throw new DaoException(ex.getMessage(), ex.getCause());
-        } finally {
-            DataBaseConnectionsPool.releaseConnection(connection);
         }
-        return idOrder;
+    }
 
+    @Override
+    public void add(List<Order> orderList) throws DaoException {
+        final Logger LOGGER = LogManager.getLogger();
+        try (Connection connection = connectionManager.getConnection()) {
+            for (Order order : orderList){
+                transferOrder(connection, order);
+            }
+        } catch (SQLException ex) {
+            LOGGER.error("Didn't get connection in OrderDao add(List<Order>)", ex.getCause());
+            throw new DaoException(ex.getMessage(), ex.getCause());
+        }
     }
 
     public int transferOrder(Connection connection, Order entity) throws DaoException {
         int idOrder = 0;
         int quantityProducts;
         int resultProducts = 0;
-        int quantityOrder = (int) entity.getOrderQuantity();
+        int quantityOrder = entity.getOrderQuantity();
         int idProduct = entity.getProduct().getIdProduct();
         int cartId = entity.getCartId();
         int cost = entity.getCost().getValue();
@@ -104,7 +89,7 @@ public class OrderDaoImpl implements DaoGeneralInterface<Order> {
             statementTo.executeUpdate();
             statementTo.close();
 
-            statementTo  = connection.prepareStatement(sqlGetId);
+            statementTo = connection.prepareStatement(sqlGetId);
             ResultSet resultSet = statementTo.executeQuery();
             while (resultSet.next()) {
                 idOrder = resultSet.getInt(1);

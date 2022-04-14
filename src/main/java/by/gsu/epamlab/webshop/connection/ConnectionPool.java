@@ -6,4 +6,5 @@ import java.sql.Connection;
 
 public interface ConnectionPool {
     Connection getConnection() throws ConnectionException;
+    void returnConnection(Connection connection);
 }

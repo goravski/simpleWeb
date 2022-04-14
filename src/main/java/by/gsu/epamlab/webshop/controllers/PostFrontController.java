@@ -6,7 +6,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 @WebServlet(urlPatterns = {"/login", "/registration", "/logout", "/update_user", "/update_product", "/add_product",
-        "/buy_product", "/storage", "/product", "/cart_buy" , "/order"})
+        "/buy_product", "/storage", "/product", "/cart_buy" , "/order", "/cart_pay"})
 public class PostFrontController extends AbstractFrontController{
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

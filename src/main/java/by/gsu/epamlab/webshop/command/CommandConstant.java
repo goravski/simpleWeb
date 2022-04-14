@@ -40,4 +40,7 @@ public class CommandConstant {
     public static final String ADD_STORAGE = "add_storage";
     public static final String GET_STORAGE = "get_storage";
     public static final String ORDER_ADD = "order_add";
+    public static final String REGISTRATION = "registration";
+    public static final String UPDATE_USER = "update_user";
+    public static final String ORDER_LIST = "order_list";
 }

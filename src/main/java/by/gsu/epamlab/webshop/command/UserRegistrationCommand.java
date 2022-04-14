@@ -1,11 +1,15 @@
 package by.gsu.epamlab.webshop.command;
 
+import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.controllers.ConstantJSP;
 
 import by.gsu.epamlab.webshop.dao.PersonDaoImpl;
+import by.gsu.epamlab.webshop.dao.Utility;
 import by.gsu.epamlab.webshop.exceptions.CommandException;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Person;
+import by.gsu.epamlab.webshop.page.AbstractPage;
+import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,29 +18,22 @@ import org.apache.logging.log4j.Logger;
 public class UserRegistrationCommand implements InterfaceCommand {
 
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
-        PersonDaoImpl personDao = new PersonDaoImpl();
+    public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
+        ConnectionManager connectionManager = new ConnectionManager();
+        PersonDaoImpl personDao = new PersonDaoImpl(connectionManager);
         final Logger LOGGER = LogManager.getLogger();
-        String name = request.getParameter(CommandConstant.NAME);
-        String login = request.getParameter(CommandConstant.LOGIN);
-        String password = request.getParameter(CommandConstant.PASSWORD);
-        Person person = new Person(name, login, password);
+        Person person = Utility.createPersonFromRequest(request);
         request.setAttribute(CommandConstant.PERSON, person);
-        if (!name.equals("") && !login.equals("") && !password.equals("")) {
-            try {
-                int idPerson = personDao.add(person);
-                if (idPerson == 0) {
-                    LOGGER.error("Person Add is not successful");
-                    return ConstantJSP.REGISTRATION_PAGE;
-                }
-            } catch (DaoException e) {
-                LOGGER.error("Add is not successful", e.getCause());
-                throw new CommandException(e.getMessage(), e.getCause());
+        try {
+            int idPerson = personDao.add(person);
+            if (idPerson == 0) {
+                LOGGER.error("Person Add is not successful");
+                return new ForwardPage(ConstantJSP.REGISTRATION_PAGE);
             }
-            LOGGER.info("execute RegistrationCommand");
-        } else {
-            return ConstantJSP.REGISTRATION_PAGE;
+            return new ForwardPage(ConstantJSP.ADD_USER_SUCCESS);
+        } catch (DaoException e) {
+            LOGGER.error("Add is not successful", e.getCause());
+            throw new CommandException(e.getMessage(), e.getCause());
         }
-        return ConstantJSP.ADD_USER_SUCCESS;
     }
 }

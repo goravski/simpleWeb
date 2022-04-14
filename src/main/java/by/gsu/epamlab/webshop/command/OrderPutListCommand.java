@@ -5,6 +5,8 @@ import by.gsu.epamlab.webshop.exceptions.CommandException;
 import by.gsu.epamlab.webshop.model.Cart;
 import by.gsu.epamlab.webshop.model.Order;
 import by.gsu.epamlab.webshop.model.Product;
+import by.gsu.epamlab.webshop.page.AbstractPage;
+import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -17,7 +19,7 @@ import java.util.Optional;
 
 public class OrderPutListCommand implements InterfaceCommand {
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
+    public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
         final Logger LOGGER = LogManager.getLogger();
         String quantity = request.getParameter(CommandConstant.QUANTITY);
         int idProduct = Integer.parseInt(request.getParameter(CommandConstant.ID));
@@ -35,11 +37,10 @@ public class OrderPutListCommand implements InterfaceCommand {
             cart.getOrderList().add(order);
             session.setAttribute(CommandConstant.CART, cart);
             LOGGER.info(String.format("Order %s add to list", order));
+            return new ForwardPage(ConstantJSP.USER_PAGE);
         } else {
             request.setAttribute(CommandConstant.ERROR, opProduct);
-            return ConstantJSP.ERROR_PAGE;
+            return new ForwardPage(ConstantJSP.ERROR_PAGE);
         }
-        return ConstantJSP.USER_PAGE;
-
     }
 }

@@ -1,11 +1,14 @@
 package by.gsu.epamlab.webshop.command;
 
+import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.controllers.ConstantJSP;
 import by.gsu.epamlab.webshop.dao.StorageDao;
 import by.gsu.epamlab.webshop.exceptions.CommandException;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Product;
 import by.gsu.epamlab.webshop.model.Storage;
+import by.gsu.epamlab.webshop.page.AbstractPage;
+import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -16,21 +19,20 @@ import java.util.Optional;
 
 public class StorageGetQuantityCommand implements InterfaceCommand {
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
+    public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
         final Logger LOGGER = LogManager.getLogger();
-        StorageDao storageDao = new StorageDao();
+        ConnectionManager connectionManager = new ConnectionManager();
+        StorageDao storageDao = new StorageDao(connectionManager);
         HttpSession session = request.getSession();
-        Product product = (Product)session.getAttribute(CommandConstant.PRODUCT);
+        Product product = (Product) session.getAttribute(CommandConstant.PRODUCT);
         int idProduct = product.getIdProduct();
         try {
-           Optional<Storage> optionalStorage = storageDao.getById(idProduct);
-           if (optionalStorage.isPresent()){
-               request.setAttribute(CommandConstant.STORAGE, optionalStorage.get());
-           }
+            Optional<Storage> optionalStorage = storageDao.getById(idProduct);
+            optionalStorage.ifPresent(storage -> request.setAttribute(CommandConstant.STORAGE, storage));
+            return new ForwardPage(ConstantJSP.ADMIN_PAGE);
         } catch (DaoException e) {
-            e.printStackTrace();
+            LOGGER.error("Get quantity from database is not successful", e.getCause());
+            throw new CommandException("Get quantity from database is not successful", e.getCause());
         }
-
-        return ConstantJSP.ADMIN_PAGE;
     }
 }

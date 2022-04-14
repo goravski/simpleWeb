@@ -23,14 +23,15 @@
                 <td>${order.product.price}</td>
                 <td>${order.orderQuantity}</td>
                 <td>${order.cost}</td>
-                <input type="hidden" name="id" value="${order.id}"/>
+                <input type="hidden" name="id" value="${order.product.idProduct}"/>
+                <input type="hidden" name="quantity" value="${order.orderQuantity}"/>
                 <td><input class="button" type="submit" value="Delete"></td>
             </tr>
         </form>
     </c:forEach>
     <tr>Total cost ${sessionScope.cart.cost}</tr>
 
-    <form method="post" action="<c:url value="/cart_buy"/> ">
+    <form method="post" action="<c:url value="/cart_pay"/> ">
         <input type="hidden" name="command" value="order_add">
         <td><input class="button" type="submit" value="Payment"></td>
     </form>

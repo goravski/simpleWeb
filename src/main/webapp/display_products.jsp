@@ -42,7 +42,7 @@
         <c:if test="${requestScope.pagination.currentPage !=1}">
 
             <td>
-                <a href="/get_product?command=get_product_page&currentPage=${requestScope.pagination.currentPage-1}">Previous</a>
+                <a href="/get_product_page?command=get_product_page&currentPage=${requestScope.pagination.currentPage-1}">Previous</a>
             </td>
 
         </c:if>
@@ -52,14 +52,14 @@
                     <td>${i}</td>
                 </c:when>
                 <c:otherwise>
-                    <td><a href="/get_product?command=get_product_page&currentPage=${i}">${i}</a></td>
+                    <td><a href="/get_product_page?command=get_product_page&currentPage=${i}">${i}</a></td>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
         <%--        Display next link--%>
         <c:if test="${requestScope.pagination.currentPage < requestScope.totalPages}">
             <td>
-                <a href="/get_product?command=get_product_page&currentPage=${requestScope.pagination.currentPage + 1}">Next</a>
+                <a href="/get_product_page?command=get_product_page&currentPage=${requestScope.pagination.currentPage + 1}">Next</a>
             </td>
         </c:if>
     </tr>

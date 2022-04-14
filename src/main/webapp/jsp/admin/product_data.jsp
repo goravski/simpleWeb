@@ -7,7 +7,7 @@
 <body>
 <h1>Product operation</h1>
 <form method="get" action="<c:url value='/get_product'/>">
-    <input type="hidden" name="command" value="get_Product"/>
+    <input type="hidden" name="command" value="get_product"/>
     <h2> Find product:</h2>
     <table style="alignment-baseline: baseline">
         <tr>
@@ -62,7 +62,7 @@
         <form method="post" action="<c:url value='/add_product'/>">
             <input type="hidden" name="command" value="add_product">
             <table style="alignment-baseline: baseline">
-                <tr>Product with such ID not exist. Insert new product:</tr>
+                <h3> Product with such ID not exist. Insert new product:</h3>
                 <tr>
                     <td>Id:</td>
                     <td><input type="text" name="id"></td>

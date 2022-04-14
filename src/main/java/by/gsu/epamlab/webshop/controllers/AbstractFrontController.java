@@ -3,6 +3,7 @@ package by.gsu.epamlab.webshop.controllers;
 import by.gsu.epamlab.webshop.command.CommandFactory;
 import by.gsu.epamlab.webshop.command.InterfaceCommand;
 import by.gsu.epamlab.webshop.exceptions.CommandException;
+import by.gsu.epamlab.webshop.page.AbstractPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,20 +20,12 @@ public abstract class AbstractFrontController extends HttpServlet {
         final Logger LOGGER = LogManager.getLogger();
         try {
             InterfaceCommand command = CommandFactory.getCommandFromFactory(request);
-            String pageName = command.execute(request, response);
-            if (pageName.equals(ConstantJSP.REGISTRATION_PAGE)) {
-                response.sendRedirect(request.getContextPath() + pageName);
-                LOGGER.trace("processRequest sendRedirect to " + pageName);
-            } else {
-                request.getRequestDispatcher(pageName).forward(request, response);
-                LOGGER.trace("processRequest forward to " + pageName);
-            }
+            AbstractPage abstractPage = command.execute(request, response);
+            abstractPage.sendRequest(request, response);
         } catch (CommandException e) {
             LOGGER.error("command.execute(req, resp) is failed", e.getCause());
             throw new ServletException(e.getMessage(), e.getCause());
         }
-
-
     }
 
     void processError(HttpServletRequest request, HttpServletResponse response, String msg)

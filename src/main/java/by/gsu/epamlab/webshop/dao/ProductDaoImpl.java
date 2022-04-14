@@ -1,7 +1,6 @@
 package by.gsu.epamlab.webshop.dao;
 
-import by.gsu.epamlab.webshop.connection.DataBaseConnectionsPool;
-import by.gsu.epamlab.webshop.exceptions.ConnectionException;
+import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Byn;
 import by.gsu.epamlab.webshop.model.Product;
@@ -15,31 +14,27 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProductDaoImpl implements DaoGeneralInterface<Product> {
-    private int numberOfRecords;
+    private AtomicInteger numberOfRecords;
 
-    public int getNumberOfRecords() {
+    public AtomicInteger getNumberOfRecords() {
         return numberOfRecords;
     }
 
+    ConnectionManager connectionManager;
 
-    DataBaseConnectionsPool connectionsPool = DataBaseConnectionsPool.getConnectionsPool();
-
-    @Override
-    public List<Product> getAll() throws NoSuchMethodException {
-        throw new NoSuchMethodException();
+    public ProductDaoImpl(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
     }
 
     @Override
     public Optional<Product> getById(int idProduct) throws DaoException {
         final Logger LOGGER = LogManager.getLogger();
         Product product = null;
-        Connection connection = null;
         String queryProduct = "SELECT idProduct, product_name, price, `describe` from products  WHERE idProduct =?";
-
-        try {
-            connection = connectionsPool.getConnection();
+        try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement statementProduct = connection.prepareStatement(queryProduct)) {
                 statementProduct.setInt(1, idProduct);
                 ResultSet resultSet = statementProduct.executeQuery();
@@ -47,27 +42,23 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
                     product = resultSetGetProcessing(resultSet);
                 }
                 LOGGER.trace("Get Product by Login");
+                return Optional.ofNullable(product);
             } catch (SQLException e) {
-                LOGGER.error("Didn't get data from database in getByLogin()", e.getCause());
+                LOGGER.error("SQL request processing error in ProductDao getByLogin()", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
-        } catch (ConnectionException e) {
-            LOGGER.error("Didn't get connection in getByLogin()", e.getCause());
+        } catch (SQLException e) {
+            LOGGER.error("Didn't get connection in ProductDao getByLogin()", e.getCause());
             throw new DaoException(e.getMessage(), e.getCause());
-        } finally {
-            DataBaseConnectionsPool.releaseConnection(connection);
         }
-        return Optional.ofNullable(product);
     }
 
     @Override
     public Optional<Product> getByLogin(String nameProduct) throws DaoException {
         final Logger LOGGER = LogManager.getLogger();
         Product product = null;
-        Connection connection = null;
         String query = "SELECT idProduct, product_name, price, `describe` from products  WHERE product_name =?";
-        try {
-            connection = connectionsPool.getConnection();
+        try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setString(1, nameProduct);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -75,49 +66,41 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
                     product = resultSetGetProcessing(resultSet);
                 }
                 LOGGER.trace("Get Product by Login");
+                return Optional.ofNullable(product);
             } catch (SQLException e) {
-                LOGGER.error("Didn't get data from database in getByLogin()", e.getCause());
+                LOGGER.error("SQL request processing error in ProductDao getByLogin()", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
-        } catch (ConnectionException e) {
-            LOGGER.error("Didn't get connection in getByLogin()", e.getCause());
+        } catch (SQLException e) {
+            LOGGER.error("Didn't get connection in ProductDao getByLogin()", e.getCause());
             throw new DaoException(e.getMessage(), e.getCause());
-        } finally {
-            DataBaseConnectionsPool.releaseConnection(connection);
         }
-        return Optional.ofNullable(product);
     }
 
     @Override
     public void update(Product entity) throws DaoException {
         final Logger LOGGER = LogManager.getLogger();
-        Connection connection = null;
         String sql = "update products set product_name = ?, price = ?, `describe` = ? where idProduct=?";
-        try {
-            connection = connectionsPool.getConnection();
+        try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatementSetProcessing(preparedStatement, entity);
                 preparedStatement.executeUpdate();
                 LOGGER.trace("Product updated in database");
             } catch (SQLException e) {
-                LOGGER.error("Didn't get connection in update() or SQL error", e.getCause());
+                LOGGER.error("SQL request processing error in ProductDao update()", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
-        } catch (ConnectionException e) {
-            LOGGER.error("Didn't get connection in getAll()", e.getCause());
+        } catch (SQLException e) {
+            LOGGER.error("Didn't get connection in ProductDao update()", e.getCause());
             throw new DaoException(e.getMessage(), e.getCause());
-        } finally {
-            DataBaseConnectionsPool.releaseConnection(connection);
         }
     }
 
     @Override
     public void delete(Product entity) throws DaoException {
         final Logger LOGGER = LogManager.getLogger();
-        Connection connection = null;
         String sql = "DELETE FROM products where idProduct = ?";
-        try {
-            connection = connectionsPool.getConnection();
+        try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setObject(1, entity.getIdProduct());
                 int result = preparedStatement.executeUpdate();
@@ -126,52 +109,51 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
                     throw new DaoException("On delete modify more then 1 record: " + result);
                 }
             } catch (SQLException e) {
-                LOGGER.error("Didn't get connection in delete() or SQL error", e.getCause());
+                LOGGER.error("SQL request processing error in ProductDao delete()", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
-        } catch (ConnectionException ex) {
-            LOGGER.error("Didn't get connection in delete()", ex.getCause());
+        } catch (SQLException ex) {
+            LOGGER.error("Didn't get connection in ProductDao delete()", ex.getCause());
             ex.printStackTrace();
-        } finally {
-            DataBaseConnectionsPool.releaseConnection(connection);
         }
     }
 
     @Override
     public int add(Product entity) throws DaoException {
         final Logger LOGGER = LogManager.getLogger();
-        int idProduct;
-        Connection connection = null;
+        int idProduct = 0;
         String sqlAdd = "insert into products (product_name, price, `describe`, idProduct) values (?,?,?,?)";
-        try {
-            connection = connectionsPool.getConnection();
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sqlAdd)) {
+        String sqlGet = "SELECT * from products WHERE idProduct = ?";
+        try (Connection connection = connectionManager.getConnection()) {
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(sqlAdd);
                 preparedStatementSetProcessing(preparedStatement, entity);
                 preparedStatement.executeUpdate();
-                idProduct = entity.getIdProduct();
-                LOGGER.trace("User Added in database");
+                preparedStatement = connection.prepareStatement(sqlGet);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    idProduct = resultSet.getInt(1);
+                    LOGGER.trace("User Added in database");
+                }
+                preparedStatement.close();
+                return idProduct;
             } catch (SQLException e) {
-                LOGGER.error("Didn't get connection in add() or SQL request processing error", e.getCause());
+                LOGGER.error("SQL request processing error in ProductDao add()", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
-        } catch (ConnectionException ex) {
-            LOGGER.error("Didn't get connection in add()", ex.getCause());
+        } catch (SQLException ex) {
+            LOGGER.error("Didn't get connection in ProductDao add()", ex.getCause());
             throw new DaoException(ex.getMessage(), ex.getCause());
-        } finally {
-            DataBaseConnectionsPool.releaseConnection(connection);
         }
-        return idProduct;
     }
 
 
     public List<Product> getAllByPage(int offset, int maxRows) throws DaoException {
         List<Product> products = new ArrayList<>();
         final Logger LOGGER = LogManager.getLogger();
-        Connection connection = null;
         String sqlGet = "select * from products limit " + offset + " , " + maxRows;
         String sqlCount = "select count(*) from products";
-        try {
-            connection = connectionsPool.getConnection();
+        try (Connection connection = connectionManager.getConnection()) {
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(sqlGet);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -181,20 +163,19 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
                 preparedStatement = connection.prepareStatement(sqlCount);
                 resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
-                    numberOfRecords = Integer.parseInt(resultSet.getString("count(*)"));
+                    int result = Integer.parseInt(resultSet.getString("count(*)"));
+                    numberOfRecords = new AtomicInteger(result);
                 }
                 preparedStatement.close();
+                return products;
             } catch (SQLException e) {
                 LOGGER.error("Didn't get connection in add() or SQL request processing error", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
-        } catch (ConnectionException ex) {
+        } catch (SQLException ex) {
             LOGGER.error("Didn't get connection in add()", ex.getCause());
             throw new DaoException(ex.getMessage(), ex.getCause());
-        } finally {
-            DataBaseConnectionsPool.releaseConnection(connection);
         }
-        return products;
     }
 
     private static Product resultSetGetProcessing(ResultSet resultSet) throws SQLException {

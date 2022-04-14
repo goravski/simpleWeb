@@ -32,7 +32,7 @@ public class Storage {
     }
 
     public boolean isValid() {
-        if (productId == 0 || quantity <0) {
+        if (productId <= 0 || quantity <0) {
             return false;
         } else {
             return true;

@@ -25,7 +25,7 @@
         </tr>
         </table>
         <br><br>
-        <button type="submit">Send</button>
+        <button type="submit">Register</button>
     </form>
     <form action="index.jsp" >
         <button type="submit">At home page</button>

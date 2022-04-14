@@ -12,8 +12,8 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-@WebFilter("/controllers")
-public class LoginFilter implements Filter {
+@WebFilter("/jsp/*")
+public class LoginValidationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {

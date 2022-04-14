@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <body>
-<h1>User manipulation</h1>
+<h1>User operation</h1>
 <form method="get" action="<c:url value='/get_user'/>">
     <input type="hidden" name="command" value="get_User"/>
     <h2> Find user:</h2>
@@ -16,7 +16,6 @@
 </form>
 
 <form method="post" action="<c:url value='/update_user'/>">
-    <input type="hidden" name="command" value="update_User"/>
     <c:set var="id" scope="page" value="${requestScope.person.id}"/>
     <c:choose>
         <c:when test="${id != 0}">
@@ -38,7 +37,7 @@
                     <td>Role:</td>
                     <td><input name="role" value="${requestScope.person.role}"></td>
                 </tr>
-                <br>
+                <br><br>
                 <tr>
                     <td>Status:</td>
                     <c:set var="alter" scope="page" value="${requestScope.person.status}"/>
@@ -55,14 +54,18 @@
                             <td>status not identified</td>
                         </c:otherwise>
                     </c:choose>
-
                 </tr>
-                <br>
-                <td><input class="button" type="submit" value="Update User"></td>
+                <br><br>
+                <tr>
+                    <input type="hidden" name="command" value="update_user"/>
+                    <td><input class="button" type="submit" value="Update User"></td>
+                    <br>
+                </tr>
             </table>
+
         </c:when>
         <c:otherwise>
-            <td>User not found</td>
+            <h2>User not found</h2>
         </c:otherwise>
     </c:choose>
 
