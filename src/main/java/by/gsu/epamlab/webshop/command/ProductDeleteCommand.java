@@ -11,13 +11,13 @@ import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductDeleteCommand implements InterfaceCommand {
     @Override
     public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
-        final Logger LOGGER = LogManager.getLogger();
+        final Logger LOGGER = LoggerFactory.getLogger(ProductDeleteCommand.class);
         ConnectionManager connectionManager = new ConnectionManager();
         ProductDaoImpl productDao = new ProductDaoImpl(connectionManager);
         HttpSession session = request.getSession();

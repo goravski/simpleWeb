@@ -1,16 +1,16 @@
 package by.gsu.epamlab.webshop.command;
 
 import by.gsu.epamlab.webshop.exceptions.CommandException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import jakarta.servlet.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Locale;
 
 
 public class CommandFactory {
     public static InterfaceCommand getCommandFromFactory(HttpServletRequest request) throws CommandException {
-        final Logger LOGGER = LogManager.getLogger();
+        final Logger LOGGER = LoggerFactory.getLogger(CommandFactory.class);
         InterfaceCommand interfaceCommand;
         try {
             String command = CommandCheck.commandCheck(request);

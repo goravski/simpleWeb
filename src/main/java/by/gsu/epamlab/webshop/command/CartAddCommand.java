@@ -11,8 +11,8 @@ import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class CartAddCommand implements InterfaceCommand {
@@ -20,7 +20,7 @@ public class CartAddCommand implements InterfaceCommand {
     @Override
     public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
         ConnectionManager connectionManager = new ConnectionManager();
-        final Logger LOGGER = LogManager.getLogger();
+        final Logger LOGGER = LoggerFactory.getLogger(CartAddCommand.class);
         CartDaoImpl cartDao = new CartDaoImpl(connectionManager);
         HttpSession session = request.getSession();
         Cart cart = (Cart) session.getAttribute(CommandConstant.CART);

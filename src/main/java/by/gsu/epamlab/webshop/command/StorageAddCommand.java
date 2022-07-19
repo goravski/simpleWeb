@@ -10,14 +10,14 @@ import by.gsu.epamlab.webshop.page.AbstractPage;
 import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class StorageAddCommand implements InterfaceCommand {
     @Override
     public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
-        final Logger LOGGER = LogManager.getLogger();
+        final Logger LOGGER = LoggerFactory.getLogger(StorageAddCommand.class);
         ConnectionManager connectionManager = new ConnectionManager();
         StorageDao storageDao = new StorageDao(connectionManager);
         Storage storage = (Storage) request.getAttribute(CommandConstant.STORAGE);

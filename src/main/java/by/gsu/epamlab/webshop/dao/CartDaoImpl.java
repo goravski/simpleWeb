@@ -3,8 +3,8 @@ package by.gsu.epamlab.webshop.dao;
 import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Cart;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Optional;
@@ -15,11 +15,9 @@ public class CartDaoImpl implements DaoGeneralInterface<Cart> {
     public CartDaoImpl(ConnectionManager connectionManager){
         this.connectionManager = connectionManager;
     }
-
+    final Logger LOGGER = LoggerFactory.getLogger(CartDaoImpl.class);
     @Override
     public Optional<Cart> getById(int personId) throws DaoException {
-
-        final Logger LOGGER = LogManager.getLogger();
         String sqlIdCart = "select idCart, personId from cart where personId = ?";
         Cart cart = null;
         try (Connection connection = connectionManager.getConnection()) {
@@ -45,7 +43,6 @@ public class CartDaoImpl implements DaoGeneralInterface<Cart> {
     @Override
     public int add(Cart entity) throws DaoException {
 
-        final Logger LOGGER = LogManager.getLogger();
         int idCart = 0;
         String sqlCart = "insert cart (personId) VALUES (?)";
         String sqlGetId = "select last_insert_id()";

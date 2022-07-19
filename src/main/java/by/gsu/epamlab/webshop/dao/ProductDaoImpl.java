@@ -4,8 +4,8 @@ import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Byn;
 import by.gsu.epamlab.webshop.model.Product;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,14 +24,13 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
     }
 
     ConnectionManager connectionManager;
-
+    static final Logger LOGGER = LoggerFactory.getLogger(ProductDaoImpl.class);
     public ProductDaoImpl(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
 
     @Override
     public Optional<Product> getById(int idProduct) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         Product product = null;
         String queryProduct = "SELECT idProduct, product_name, price, `describe` from products  WHERE idProduct =?";
         try (Connection connection = connectionManager.getConnection()) {
@@ -55,7 +54,6 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
 
     @Override
     public Optional<Product> getByLogin(String nameProduct) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         Product product = null;
         String query = "SELECT idProduct, product_name, price, `describe` from products  WHERE product_name =?";
         try (Connection connection = connectionManager.getConnection()) {
@@ -79,7 +77,6 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
 
     @Override
     public void update(Product entity) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         String sql = "update products set product_name = ?, price = ?, `describe` = ? where idProduct=?";
         try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -98,7 +95,6 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
 
     @Override
     public void delete(Product entity) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         String sql = "DELETE FROM products where idProduct = ?";
         try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -120,7 +116,6 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
 
     @Override
     public int add(Product entity) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         int idProduct = 0;
         String sqlAdd = "insert into products (product_name, price, `describe`, idProduct) values (?,?,?,?)";
         String sqlGet = "SELECT * from products WHERE idProduct = ?";
@@ -150,7 +145,6 @@ public class ProductDaoImpl implements DaoGeneralInterface<Product> {
 
     public List<Product> getAllByPage(int offset, int maxRows) throws DaoException {
         List<Product> products = new ArrayList<>();
-        final Logger LOGGER = LogManager.getLogger();
         String sqlGet = "select * from products limit " + offset + " , " + maxRows;
         String sqlCount = "select count(*) from products";
         try (Connection connection = connectionManager.getConnection()) {

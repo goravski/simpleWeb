@@ -11,8 +11,8 @@ import by.gsu.epamlab.webshop.model.Person;
 import by.gsu.epamlab.webshop.page.AbstractPage;
 import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class UserRegistrationCommand implements InterfaceCommand {
@@ -21,7 +21,7 @@ public class UserRegistrationCommand implements InterfaceCommand {
     public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
         ConnectionManager connectionManager = new ConnectionManager();
         PersonDaoImpl personDao = new PersonDaoImpl(connectionManager);
-        final Logger LOGGER = LogManager.getLogger();
+        final Logger LOGGER = LoggerFactory.getLogger(UserRegistrationCommand.class);
         Person person = Utility.createPersonFromRequest(request);
         request.setAttribute(CommandConstant.PERSON, person);
         try {

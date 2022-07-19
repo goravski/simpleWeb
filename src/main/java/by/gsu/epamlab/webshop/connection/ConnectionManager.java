@@ -1,14 +1,14 @@
 package by.gsu.epamlab.webshop.connection;
 
 import by.gsu.epamlab.webshop.exceptions.ConnectionException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ConnectionManager implements AutoCloseable {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionManager.class);
     private final static ConnectionPool CONNECTION_POOL = DataBaseConnectionsPool.getConnectionsPool();
     private Connection connection;
 

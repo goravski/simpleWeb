@@ -10,8 +10,8 @@ import by.gsu.epamlab.webshop.page.AbstractPage;
 import by.gsu.epamlab.webshop.page.RedirectPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class OrderAddCommand implements InterfaceCommand {
     @Override
     public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
         ConnectionManager connectionManager = new ConnectionManager();
-        final Logger LOGGER = LogManager.getLogger();
+        final Logger LOGGER = LoggerFactory.getLogger(OrderAddCommand.class);
         OrderDaoImpl orderDao = new OrderDaoImpl(connectionManager);
         List<Order> newList = (List<Order>) request.getAttribute(CommandConstant.ORDER_LIST);
         try {

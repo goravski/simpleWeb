@@ -8,8 +8,8 @@ import by.gsu.epamlab.webshop.model.Product;
 import by.gsu.epamlab.webshop.model.Storage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class Utility {
-
+    static final Logger LOGGER = LoggerFactory.getLogger(Utility.class);
     public static boolean checkPassword(Optional<Person> optionalPerson, String passwordRequest) throws ValidationException {
-        final Logger LOGGER = LogManager.getLogger();
         boolean check;
         if (optionalPerson.isPresent()) {
             Person person = optionalPerson.get();
@@ -39,7 +38,6 @@ public class Utility {
     }
 
     public static String getHas(String password) {
-        final Logger LOGGER = LogManager.getLogger();
         SecretKey secretKey;
         String keyString = null;
         try {

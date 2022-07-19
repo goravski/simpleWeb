@@ -3,8 +3,8 @@ package by.gsu.epamlab.webshop.dao;
 import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Order;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.List;
@@ -17,9 +17,9 @@ public class OrderDaoImpl implements DaoGeneralInterface<Order> {
         this.connectionManager = connectionManager;
     }
 
+    static final Logger LOGGER = LoggerFactory.getLogger(OrderDaoImpl.class);
     @Override
     public int add(Order entity) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         int idOrder;
         try (Connection connection = connectionManager.getConnection()) {
             idOrder = transferOrder(connection, entity);
@@ -32,7 +32,6 @@ public class OrderDaoImpl implements DaoGeneralInterface<Order> {
 
     @Override
     public void add(List<Order> orderList) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         try (Connection connection = connectionManager.getConnection()) {
             for (Order order : orderList){
                 transferOrder(connection, order);

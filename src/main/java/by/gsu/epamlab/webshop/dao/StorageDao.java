@@ -3,8 +3,8 @@ package by.gsu.epamlab.webshop.dao;
 import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.exceptions.DaoException;
 import by.gsu.epamlab.webshop.model.Storage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,10 +18,9 @@ public class StorageDao implements DaoGeneralInterface<Storage> {
     public StorageDao(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
-
+    static final Logger LOGGER = LoggerFactory.getLogger(StorageDao.class);
     @Override
     public Optional <Storage> getById(int idProduct) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         Storage storage = null;
         String queryStorage = "SELECT idstorage, quantity from storage_product  WHERE idstorage =?";
         try (Connection connection = connectionManager.getConnection()) {
@@ -46,7 +45,6 @@ public class StorageDao implements DaoGeneralInterface<Storage> {
 
     @Override
     public void update(Storage entity) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         String query = "update storage_product set quantity =? where idstorage =?";
         try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -67,7 +65,6 @@ public class StorageDao implements DaoGeneralInterface<Storage> {
     public int add(Storage entity) throws DaoException {
         int idStorage;
         int productId = entity.getProductId();
-        final Logger LOGGER = LogManager.getLogger();
         String query = "insert storage_product (idstorage, quantity) values (?,?)";
         try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {

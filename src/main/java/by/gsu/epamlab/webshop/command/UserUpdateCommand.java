@@ -2,6 +2,7 @@ package by.gsu.epamlab.webshop.command;
 
 import by.gsu.epamlab.webshop.connection.ConnectionManager;
 import by.gsu.epamlab.webshop.controllers.ConstantJSP;
+import by.gsu.epamlab.webshop.dao.CartDaoImpl;
 import by.gsu.epamlab.webshop.dao.PersonDaoImpl;
 import by.gsu.epamlab.webshop.dao.Utility;
 import by.gsu.epamlab.webshop.exceptions.CommandException;
@@ -11,8 +12,8 @@ import by.gsu.epamlab.webshop.page.AbstractPage;
 import by.gsu.epamlab.webshop.page.ForwardPage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class UserUpdateCommand implements InterfaceCommand {
@@ -20,7 +21,7 @@ public class UserUpdateCommand implements InterfaceCommand {
     public AbstractPage execute(HttpServletRequest request, HttpServletResponse response) throws CommandException {
         ConnectionManager connectionManager = new ConnectionManager();
         PersonDaoImpl personDao = new PersonDaoImpl(connectionManager);
-        final Logger LOGGER = LogManager.getLogger();
+        final Logger LOGGER = LoggerFactory.getLogger(UserUpdateCommand.class);
         Person person = Utility.updatePersonFromRequest(request);
         try {
             personDao.update(person);

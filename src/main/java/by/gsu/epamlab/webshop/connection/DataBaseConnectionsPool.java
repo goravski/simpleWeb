@@ -2,8 +2,8 @@ package by.gsu.epamlab.webshop.connection;
 
 import by.gsu.epamlab.webshop.exceptions.ConnectionException;
 import by.gsu.epamlab.webshop.exceptions.ConstantException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,48 +17,46 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DataBaseConnectionsPool implements ConnectionPool {
-    private static final Logger LOGGER = LogManager.getLogger();
-
+    static final Logger LOGGER = LoggerFactory.getLogger(DataBaseConnectionsPool.class);
+    private static DataBaseConnectionsPool CONNECTIONS_POOL;
     private static BlockingQueue<Connection> connectionBlockingQueue;
     private final static List<Connection> usedConnections = new CopyOnWriteArrayList<>();
     private final static Properties PROPERTIES = new Properties();
 
-
-    static {
-        try (InputStream inputStream = DataBaseConnectionsPool.class.getClassLoader().getResourceAsStream("db.properties")) {
+    private DataBaseConnectionsPool() {
+        try (InputStream inputStream = DataBaseConnectionsPool.class.getClassLoader()
+                .getResourceAsStream("db.properties")) {
             PROPERTIES.load(inputStream);
             Class.forName(PROPERTIES.getProperty("db.driverClassName"));
         } catch (IOException e) {
             LOGGER.error("Load properties failed", e.getCause());
-            throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             LOGGER.error("Class.forName not find com.mysql.cj.jdbc.Driver", e.getCause());
         }
-    }
-
-    private static Connection openConnection() throws SQLException {
-        return DriverManager.getConnection(PROPERTIES.getProperty("db.url"),
-                PROPERTIES.getProperty("db.username"), PROPERTIES.getProperty("db.password"));
-    }
-
-    private final static DataBaseConnectionsPool CONNECTIONS_POOL = new DataBaseConnectionsPool();
-
-    public static DataBaseConnectionsPool getConnectionsPool() {
-        return CONNECTIONS_POOL;
-    }
-
-    private DataBaseConnectionsPool() {
         int poolSize = Integer.parseInt(PROPERTIES.getProperty("db.pool.size"));
         connectionBlockingQueue = new ArrayBlockingQueue<>(poolSize);
         for (int i = 0; i < poolSize; i++) {
             try {
                 connectionBlockingQueue.offer(openConnection());
-            } catch (SQLException e) {
+            } catch (SQLException | ConnectionException e) {
                 LOGGER.error("Connection with database error during open connection", e.getCause());
             }
         }
     }
+
+    public static DataBaseConnectionsPool getConnectionsPool() {
+        if (CONNECTIONS_POOL == null) {
+            CONNECTIONS_POOL = new DataBaseConnectionsPool();
+        }
+        return CONNECTIONS_POOL;
+    }
+
+    private Connection openConnection() throws SQLException, ConnectionException {
+        return DriverManager.getConnection(PROPERTIES.getProperty("db.url"),
+                PROPERTIES.getProperty("db.username"), PROPERTIES.getProperty("db.password"));
+    }
+
 
     @Override
     public Connection getConnection() throws ConnectionException {
@@ -75,13 +73,9 @@ public class DataBaseConnectionsPool implements ConnectionPool {
     }
 
     @Override
-    public void returnConnection(Connection connection){
+    public void returnConnection(Connection connection) {
         connectionBlockingQueue.add(connection);
         usedConnections.remove(connection);
     }
 
-    public static void releaseConnection(Connection connection) {
-        connectionBlockingQueue.add(connection);
-        usedConnections.remove(connection);
-    }
 }

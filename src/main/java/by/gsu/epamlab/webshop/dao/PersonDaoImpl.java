@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class PersonDaoImpl implements DaoGeneralInterface<Person> {
@@ -23,10 +23,9 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
     public PersonDaoImpl(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
     }
-
+    final Logger LOGGER = LoggerFactory.getLogger(ProductDaoImpl.class);
     @Override
     public List<Person> getAll() throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         List<Person> personList = new ArrayList<>();
         String query = "SELECT idPerson, name, login, password, statusName, role " +
                 "from person join role on idRole = person.roleId join status on idstatus = person.statusId";
@@ -37,11 +36,11 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
                     personList.add(resultSetLoadToPerson(resultSet));
                     LOGGER.info("List of Person initialized");
                 }
-                return personList;
             } catch (SQLException ex) {
                 LOGGER.error("SQL request processing error in PersonDao getAll()", ex.getCause());
                 throw new DaoException(ex.getMessage(), ex.getCause());
             }
+            return personList;
         } catch (SQLException e) {
             LOGGER.error("Didn't get connection in PersonDao getAll()", e.getCause());
             throw new DaoException(e.getMessage(), e.getCause());
@@ -50,7 +49,6 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
 
     @Override
     public Optional<Person> getById(int id) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         Person person = null;
         String query = "SELECT idPerson, name, login, password, statusName, role from person " +
                 "join role on idRole = person.roleId\n" +
@@ -75,7 +73,6 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
     }
 
     public Optional<Person> getByLogin(String loginRequest) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         Person person = null;
         String query = "SELECT idPerson, name, login, password, statusName, role from person " +
                 "join role on idRole = person.roleId\n" +
@@ -88,11 +85,11 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
                     person = resultSetLoadToPerson(resultSet);
                 }
                 LOGGER.trace("Get Person by Login");
-                return Optional.ofNullable(person);
             } catch (SQLException e) {
                 LOGGER.error("SQL request processing error in PersonDao getByLogin()", e.getCause());
                 throw new DaoException(e.getMessage(), e.getCause());
             }
+            return Optional.ofNullable(person);
         } catch (SQLException e) {
             LOGGER.error("Didn't get connection in PersonDao getByLogin()", e.getCause());
             throw new DaoException(e.getMessage(), e.getCause());
@@ -101,7 +98,6 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
 
     @Override
     public void update(Person entity) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         String sql = "update person set name = ?, login = ?, roleId = (select idRole from role where role = ?)" +
                 ",statusId = (select idstatus from status where statusName = ?)  where idPerson = ?";
         try (Connection connection = connectionManager.getConnection()) {
@@ -125,7 +121,6 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
 
     @Override
     public void delete(Person person) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         String sql = "DELETE FROM person where idPerson = ?";
         try (Connection connection = connectionManager.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -147,7 +142,6 @@ public class PersonDaoImpl implements DaoGeneralInterface<Person> {
 
     @Override
     public int add(Person entity) throws DaoException {
-        final Logger LOGGER = LogManager.getLogger();
         String hashPassword = Utility.getHas(entity.getPassword());
         String name = entity.getName();
         String login = entity.getLogin();
